@@ -1,9 +1,10 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="dynamic-cli-builder",
-    version="0.1.0",
+    name="dynamic_cli_builder",
+    version="0.1.4",
     description="A Python library for dynamically building CLI tools from YAML configurations.",
+    long_description=open("README.md").read(),
     author="Idris Adigun",
     author_email="adigun.idris@ymail.com",
     url="https://github.com/idris-adigun/dynamic-cli-builder",
@@ -13,7 +14,7 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "dynamic-cli=dynamic_cli_builder.cli:main",
+            "dynamic-cli=dynamic_cli_builder:run_builder",
         ],
     },
     classifiers=[
