@@ -1,9 +1,9 @@
 description: "Dynamic CLI Builder Example"
 commands:
-  - name: greet
-    description: "Greet a user."
+  - name: say_hello
+    description: "Say Hello..."
     args:
       - name: name
         type: str
         help: "Name of the user."
-    action: greet_user
+    action: say_hello
