@@ -28,29 +28,7 @@ jobs:
         run: |
           python setup.py sdist bdist_wheel
 
-      - name: Check if version exists on PyPI
-            id: check-version
-            run: |
-              python -c "
-import sys
-from pypi_simple import PyPISimple
-project_name = 'dynamic-cli-builder'  # Replace with your package name
-version = '0.1.7'  # Dynamically fetch your version if needed
-with PyPISimple() as client:
-    available = any(
-        version in dist.version
-        for dist in client.get_project_files(project_name)
-    )
-sys.exit(1 if available else 0)
-"
-      continue-on-error: true
-
-      - name: Skip upload if version exists
-        if: ${{ steps.check-version.outcome == 'success' }}
-        run: echo "Version already exists. Skipping upload."
-
       - name: Publish to PyPI
-        if: ${{ steps.check-version.outcome != 'success' }}
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
