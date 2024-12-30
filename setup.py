@@ -1,11 +1,26 @@
 from setuptools import setup, find_packages
+import re
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
+def increment_version(version):
+    major, minor, patch = map(int, version.split('.'))
+    patch += 1
+    return f"{major}.{minor}.{patch}"
+
+with open("setup.py", "r", encoding="utf-8") as fh:
+    setup_content = fh.read()
+
+new_version = increment_version("0.1.9")
+setup_content = re.sub(r'version="[\d\.]+",', f'version="{new_version}",', setup_content)
+
+with open("setup.py", "w", encoding="utf-8") as fh:
+    fh.write(setup_content)
+
 setup(
     name="dynamic_cli_builder",
-    version="0.1.9",
+    version=new_version,
     description="A Python library for dynamically building CLI tools from YAML configurations.",
     long_description=long_description,
     long_description_content_type="text/markdown",
