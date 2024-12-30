@@ -7,7 +7,7 @@ from dynamic_cli_builder import load_config, build_cli
 
 class TestDynamicCLI(unittest.TestCase):
     def test_load_config(self):
-        config = load_config("config.yaml")
+        config = load_config("test/config.yaml")
         self.assertIn("commands", config)
         for command in config["commands"]:
             self.assertIn("name", command)
