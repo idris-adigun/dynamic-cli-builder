@@ -1,4 +1,16 @@
 import argparse
+import re
+
+
+def validate_arg(value, rules):
+    if "regex" in rules:
+        if not re.match(rules["regex"], value):
+            raise argparse.ArgumentTypeError(f"Value '{value}' does not match regex '{rules['regex']}'")
+    if "min" in rules and float(value) < rules["min"]:
+        raise argparse.ArgumentTypeError(f"Value '{value}' is less than minimum allowed value {rules['min']}")
+    if "max" in rules and float(value) > rules["max"]:
+        raise argparse.ArgumentTypeError(f"Value '{value}' is greater than maximum allowed value {rules['max']}")
+    return value
 
 
 def build_cli(config):
@@ -9,7 +21,12 @@ def build_cli(config):
         subparser = subparsers.add_parser(command["name"], description=command["description"])
         for arg in command["args"]:
             arg_type = eval(arg["type"]) if arg["type"] != "json" else str
-            subparser.add_argument(f"--{arg['name']}", type=arg_type, help=arg["help"])
+            if "rules" in arg:
+                def custom_type(value, rules=arg["rules"]):
+                    return validate_arg(value, rules)
+                subparser.add_argument(f"--{arg['name']}", type=custom_type, help=arg["help"])
+            else:
+                subparser.add_argument(f"--{arg['name']}", type=arg_type, help=arg["help"])
     
     return parser
 

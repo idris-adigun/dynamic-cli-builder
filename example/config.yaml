@@ -6,4 +6,10 @@ commands:
       - name: name
         type: str
         help: "Name of the user."
+      - name: age
+        type: int
+        help: "Age of the user."
+        rules:
+          min: 1
+          max: 99
     action: say_hello
