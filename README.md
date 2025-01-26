@@ -25,8 +25,8 @@ Here is a simple example to get you started:
 Actions are basically function to be executed base on command. <br> For instance _actions.py_
 
 ```python
-def say_hello(name: str):
-    print(f"Hello {name}!")
+def say_hello(name: str, age: int):
+    print(f"Hello {name}!, you are {age} years old.")
 
 # Action Registry
 ACTIONS = {
@@ -49,6 +49,47 @@ commands:
       - name: name
         type: str
         help: "Name of the user."
+    action: say_hello
+```
+
+#### Add rules for custom validation
+
+- min, max validation
+
+```yaml
+description: "Dynamic CLI Builder Example"
+commands:
+  - name: say_hello
+    description: "Say Hello..."
+    args:
+      - name: name
+        type: str
+        help: "Name of the user."
+      - name: age
+        type: int
+        help: "Age of the user."
+        rules:
+          min: 1
+          max: 99
+    action: say_hello
+```
+
+- for more control, you could also use regex
+
+```yaml
+description: "Dynamic CLI Builder Example"
+commands:
+  - name: say_hello
+    description: "Say Hello..."
+    args:
+      - name: name
+        type: str
+        help: "Name of the user."
+      - name: age
+        type: int
+        help: "Age of the user."
+        rules:
+          regex: "^[1-9][0-9]$"
     action: say_hello
 ```
 
@@ -86,9 +127,9 @@ python3 main.py -h
 For Instance:
 
 ```
-python3 main.py say_hello --name world
+python3 main.py say_hello --name world --age 4530000000
 ```
 
 You should see
 
-> Hello World!
+> Hello World!, you are 4530000000 years old

@@ -10,6 +10,5 @@ commands:
         type: int
         help: "Age of the user."
         rules:
-          min: 1
-          max: 99
+          regex: "^[1-9][0-9]$"
     action: say_hello
