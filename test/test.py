@@ -3,8 +3,7 @@ import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from dynamic_cli_builder.main import build_cli
-from dynamic_cli_builder.loader import load_config, build_cli
+from dynamic_cli_builder import load_config, build_cli
 
 class TestDynamicCLI(unittest.TestCase):
     def test_load_config(self):
