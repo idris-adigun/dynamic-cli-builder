@@ -26,7 +26,6 @@ setup(
     long_description_content_type="text/markdown",
     author="Idris Adigun",
     author_email="adigun.idris@ymail.com",
-    url="https://github.com/idris-adigun/dynamic-cli-builder",
     packages=find_packages(),
     install_requires=[
         "pyyaml",
