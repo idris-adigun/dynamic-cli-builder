@@ -137,12 +137,12 @@ You should see
 
 > Hello World!, you are 99 years old
 
-#### Logging
+#### Logging Mode
 
 logging is set to false by default, to enable logging add _-log_ to your command just after the file name
 
 ```
-python3 main.py say_hello -log --name world --age 99
+python3 main.py -log say_hello --name world --age 99
 ```
 
 Output:
@@ -152,3 +152,11 @@ Output:
 > 2025-01-29 12:08:19,532 - INFO - Executing command: say_hello
 
 > Hello World!, you are 99 years old.
+
+#### Interactive Mode
+
+Interactive mode is set to false by default to enable interactive mode, add _-im_ to your command For instance:
+
+```
+python3 main.py -im say_hello --name world --age 99
+```

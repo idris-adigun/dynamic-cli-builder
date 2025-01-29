@@ -27,6 +27,7 @@ def validate_arg(value, rules):
 def build_cli(config):
     parser = argparse.ArgumentParser(description=config.get("description", "Dynamic CLI"))
     parser.add_argument('-log', action='store_true', help='Enable logging')
+    parser.add_argument('-im', action='store_true', help='Enable Interactive Mode')
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     for command in config["commands"]:
@@ -60,7 +61,8 @@ def prompt_for_missing_args(parsed_args, config):
 def execute_command(parsed_args, config, ACTIONS):
     configure_logging(parsed_args.log)
     logger.info(f"Executing command: {parsed_args.command}")
-    prompt_for_missing_args(parsed_args, config)
+    if(parsed_args.im):
+        prompt_for_missing_args(parsed_args, config)
     for command in config["commands"]:
         if parsed_args.command == command["name"]:
             func = ACTIONS.get(command["action"])
