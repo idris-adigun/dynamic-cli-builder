@@ -139,7 +139,7 @@ You should see
 
 #### Logging
 
-logging is set to false by default, to enable logging add _--log True_ to your command
+logging is set to false by default, to enable logging add _-log_ to your command just after the file name
 
 ```
 python3 main.py say_hello -log --name world --age 99
