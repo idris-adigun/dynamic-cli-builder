@@ -44,7 +44,13 @@ def prompt_for_missing_args(parsed_args, config):
         if parsed_args.command == command["name"]:
             for arg in command["args"]:
                 if getattr(parsed_args, arg["name"]) is None:
-                    value = input(f"Please enter a value for {arg['name']}: ")
+                    while True:
+                        value = input(f"Please enter a value for {arg['name']}: ")
+                        try:
+                            validate_arg(value, arg["rules"])
+                            break
+                        except argparse.ArgumentTypeError as e:
+                            print(e)
                     setattr(parsed_args, arg["name"], value)
 
 def execute_command(parsed_args, config, ACTIONS):

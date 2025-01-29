@@ -1,12 +1,15 @@
 # Dynamic CLI Builder
 
-Dynamic CLI Builder is a tool to help you create command-line interfaces (CLI) dynamically with ease.
+Dynamic CLI Builder is a tool to help you create interactive command-line interfaces (CLI) dynamically with ease.
 
 ## Features
 
 - Easy to use
 - Highly customizable
 - Supports multiple command structures
+- Interactive cli
+- custom rules
+- Logging
 
 ## Installation
 
