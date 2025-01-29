@@ -33,14 +33,23 @@ def build_cli(config):
             if "rules" in arg:
                 def custom_type(value, rules=arg["rules"]):
                     return validate_arg(value, rules)
-                subparser.add_argument(f"--{arg['name']}", type=custom_type, help=arg["help"])
+                subparser.add_argument(f"--{arg['name']}", type=custom_type, help=arg["help"], required=arg.get("required", False))
             else:
-                subparser.add_argument(f"--{arg['name']}", type=arg_type, help=arg["help"])
+                subparser.add_argument(f"--{arg['name']}", type=arg_type, help=arg["help"], required=arg.get("required", False))
     
     return parser
 
+def prompt_for_missing_args(parsed_args, config):
+    for command in config["commands"]:
+        if parsed_args.command == command["name"]:
+            for arg in command["args"]:
+                if getattr(parsed_args, arg["name"]) is None:
+                    value = input(f"Please enter a value for {arg['name']}: ")
+                    setattr(parsed_args, arg["name"], value)
+
 def execute_command(parsed_args, config, ACTIONS):
     logger.info(f"Executing command: {parsed_args.command}")
+    prompt_for_missing_args(parsed_args, config)
     for command in config["commands"]:
         if parsed_args.command == command["name"]:
             func = ACTIONS.get(command["action"])
