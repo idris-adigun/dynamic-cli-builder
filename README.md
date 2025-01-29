@@ -88,11 +88,13 @@ commands:
       - name: name
         type: str
         help: "Name of the user."
+        required: True
       - name: age
         type: int
         help: "Age of the user."
         rules:
           regex: "^[1-9][0-9]$"
+        required: True
     action: say_hello
 ```
 
