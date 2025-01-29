@@ -1,6 +1,6 @@
 # Dynamic CLI Builder
 
-Dynamic CLI Builder is a tool to help you create interactive command-line interfaces (CLI) dynamically with ease.
+Dynamic CLI Builder is a tool that simplifies the creation of interactive command-line interfaces (CLI) with minimal changes to your Python scripts, you can enable CLI functionality by adding methods to the registry and describing the CLI structure using YAML.
 
 ## Features
 
