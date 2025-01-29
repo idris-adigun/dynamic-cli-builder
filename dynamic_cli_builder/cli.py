@@ -26,7 +26,7 @@ def validate_arg(value, rules):
 
 def build_cli(config):
     parser = argparse.ArgumentParser(description=config.get("description", "Dynamic CLI"))
-    parser.add_argument('--log', action='store_true', help='Enable logging')
+    parser.add_argument('-log', action='store_true', help='Enable logging')
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     for command in config["commands"]:

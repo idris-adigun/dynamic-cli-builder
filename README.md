@@ -142,7 +142,7 @@ You should see
 logging is set to false by default, to enable logging add _--log True_ to your command
 
 ```
-python3 main.py say_hello --name world --age 99 --log True
+python3 main.py say_hello -log --name world --age 99
 ```
 
 Output:
