@@ -130,9 +130,25 @@ python3 main.py -h
 For Instance:
 
 ```
-python3 main.py say_hello --name world --age 4530000000
+python3 main.py say_hello --name world --age 99
 ```
 
 You should see
 
-> Hello World!, you are 4530000000 years old
+> Hello World!, you are 99 years old
+
+#### Logging
+
+logging is set to false by default, to enable logging add _--log True_ to your command
+
+```
+python3 main.py say_hello --name world --age 99 --log True
+```
+
+Output:
+
+> 2025-01-29 12:08:19,518 - INFO - Building CLI with config.
+
+> 2025-01-29 12:08:19,532 - INFO - Executing command: say_hello
+
+> Hello World!, you are 99 years old.
