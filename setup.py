@@ -12,7 +12,7 @@ def increment_version(version):
 with open("setup.py", "r", encoding="utf-8") as fh:
     setup_content = fh.read()
 
-new_version = increment_version("0.1.18")
+new_version = increment_version("0.1.19")
 setup_content = re.sub(r'version="[\d\.]+",', f'version="{new_version}",', setup_content)
 
 with open("setup.py", "w", encoding="utf-8") as fh:
