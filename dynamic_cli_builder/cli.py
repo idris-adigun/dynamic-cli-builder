@@ -2,8 +2,12 @@ import argparse
 import re
 import logging
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+def configure_logging(enable_logging):
+    if enable_logging:
+        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    else:
+        logging.basicConfig(level=logging.CRITICAL)  # Disable logging by setting the level to CRITICAL
+
 logger = logging.getLogger(__name__)
 
 def validate_arg(value, rules):
@@ -21,8 +25,8 @@ def validate_arg(value, rules):
     return value
 
 def build_cli(config):
-    logger.info("Building CLI with config")
     parser = argparse.ArgumentParser(description=config.get("description", "Dynamic CLI"))
+    parser.add_argument('--log', action='store_true', help='Enable logging')
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     for command in config["commands"]:
@@ -54,6 +58,7 @@ def prompt_for_missing_args(parsed_args, config):
                     setattr(parsed_args, arg["name"], value)
 
 def execute_command(parsed_args, config, ACTIONS):
+    configure_logging(parsed_args.log)
     logger.info(f"Executing command: {parsed_args.command}")
     prompt_for_missing_args(parsed_args, config)
     for command in config["commands"]:
