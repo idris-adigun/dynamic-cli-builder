@@ -1,23 +1,32 @@
 import argparse
 import re
+import logging
 
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 def validate_arg(value, rules):
+    logger.debug(f"Validating argument: {value} with rules: {rules}")
     if "regex" in rules:
         if not re.match(rules["regex"], value):
+            logger.error(f"Value '{value}' does not match regex '{rules['regex']}'")
             raise argparse.ArgumentTypeError(f"Value '{value}' does not match regex '{rules['regex']}'")
     if "min" in rules and float(value) < rules["min"]:
+        logger.error(f"Value '{value}' is less than minimum allowed value {rules['min']}")
         raise argparse.ArgumentTypeError(f"Value '{value}' is less than minimum allowed value {rules['min']}")
     if "max" in rules and float(value) > rules["max"]:
+        logger.error(f"Value '{value}' is greater than maximum allowed value {rules['max']}")
         raise argparse.ArgumentTypeError(f"Value '{value}' is greater than maximum allowed value {rules['max']}")
     return value
 
-
 def build_cli(config):
+    logger.info("Building CLI with config")
     parser = argparse.ArgumentParser(description=config.get("description", "Dynamic CLI"))
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     for command in config["commands"]:
+        logger.debug(f"Adding command: {command['name']}")
         subparser = subparsers.add_parser(command["name"], description=command["description"])
         for arg in command["args"]:
             arg_type = eval(arg["type"]) if arg["type"] != "json" else str
@@ -31,10 +40,13 @@ def build_cli(config):
     return parser
 
 def execute_command(parsed_args, config, ACTIONS):
+    logger.info(f"Executing command: {parsed_args.command}")
     for command in config["commands"]:
         if parsed_args.command == command["name"]:
             func = ACTIONS.get(command["action"])
             if not func:
+                logger.error(f"Action '{command['action']}' not defined.")
                 raise ValueError(f"Action '{command['action']}' not defined.")
             args = {arg["name"]: getattr(parsed_args, arg["name"], None) for arg in command["args"]}
+            logger.debug(f"Executing action: {command['action']} with args: {args}")
             func(**args)
