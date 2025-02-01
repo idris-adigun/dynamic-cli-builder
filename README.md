@@ -68,6 +68,7 @@ commands:
       - name: name
         type: str
         help: "Name of the user."
+        rules: ""
       - name: age
         type: int
         help: "Age of the user."
@@ -88,6 +89,7 @@ commands:
       - name: name
         type: str
         help: "Name of the user."
+        rules: ""
         required: True
       - name: age
         type: int
