@@ -1,0 +1,27 @@
+{
+    "description": "Dynamic CLI JSON",
+    "commands": [
+        {
+            "name": "say_hello", 
+            "description": "Say hello...",
+            "args": [
+                {
+                    "name": "name",
+                    "type": "str",
+                    "help": "Name of the User.",
+                    "rules": ""
+                }, 
+                {
+                    "name": "age",
+                    "type": "str",
+                    "help": "Name of the User.",
+                    "rules": {
+                        "regex": "^[1-9][0-9]$"
+                    }
+                }
+            ],
+            "action": "say_hello"
+
+        }
+    ]
+}
