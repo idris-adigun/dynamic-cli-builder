@@ -157,33 +157,33 @@ or json equivalent
 
 ```json
 {
-    "description": "Dynamic CLI JSON",
-    "commands": [
-        {
-            "name": "say_hello",
-            "description": "Say hello...",
-            "args": [
-                {
-                    "name": "name",
-                    "type": "str",
-                    "help": "Name of the User.",
-                    "rules": "",
-                    "required": true
-                },
-                {
-                    "name": "age",
-                    "type": "str",
-                    "help": "Age of the User.",
-                    "required": true
-                    "rules": {
-                        "regex": "^[1-9][0-9]$"
-                    }
-                }
-            ],
-            "action": "say_hello"
+  "description": "Dynamic CLI JSON",
+  "commands": [
+    {
+      "name": "say_hello",
+      "description": "Say hello...",
+      "args": [
+          {
+              "name": "name",
+              "type": "str",
+              "help": "Name of the User.",
+              "rules": "",
+              "required": true
+          },
+          {
+              "name": "age",
+              "type": "str",
+              "help": "Age of the User.",
+              "required": true
+              "rules": {
+                  "regex": "^[1-9][0-9]$"
+              }
+          }
+      ],
+      "action": "say_hello"
 
-        }
-    ]
+    }
+  ]
 }
 ```
 
