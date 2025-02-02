@@ -14,7 +14,7 @@
                 {
                     "name": "age",
                     "type": "str",
-                    "help": "Name of the User.",
+                    "help": "Age of the User.",
                     "rules": {
                         "regex": "^[1-9][0-9]$"
                     }

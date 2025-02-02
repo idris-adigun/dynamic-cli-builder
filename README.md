@@ -1,6 +1,6 @@
 # Dynamic CLI Builder
 
-Dynamic CLI Builder is a tool that simplifies the creation of interactive command-line interfaces (CLI) with minimal changes to your Python scripts, you can enable CLI functionality by adding methods to the registry and describing the CLI structure using YAML.
+Dynamic CLI Builder is a tool that simplifies the creation of interactive command-line interfaces (CLI) with minimal changes to your Python scripts, you can enable CLI functionality by adding methods to the registry and describing the CLI structure using YAML or JSON.
 
 ## Features
 
@@ -39,7 +39,7 @@ ACTIONS = {
 
 you can have multiple function registered
 
-#### Create yaml config
+#### Create yaml or json config
 
 _config.yaml_
 
@@ -53,6 +53,27 @@ commands:
         type: str
         help: "Name of the user."
     action: say_hello
+```
+
+```json
+{
+	"description": "Dynamic CLI JSON",
+	"commands": [
+		{
+			"name": "say_hello",
+			"description": "Say hello...",
+			"args": [
+				{
+					"name": "name",
+					"type": "str",
+					"help": "Name of the User.",
+					"rules": ""
+				}
+			],
+			"action": "say_hello"
+		}
+	]
+}
 ```
 
 #### Add rules for custom validation
@@ -78,6 +99,38 @@ commands:
     action: say_hello
 ```
 
+In Json:
+
+```json
+{
+	"description": "Dynamic CLI JSON",
+	"commands": [
+		{
+			"name": "say_hello",
+			"description": "Say hello...",
+			"args": [
+				{
+					"name": "name",
+					"type": "str",
+					"help": "Name of the User.",
+					"rules": ""
+				},
+				{
+					"name": "age",
+					"type": "str",
+					"help": "Age of the User.",
+					"rules": {
+						"min": 1,
+						"max": 10
+					}
+				}
+			],
+			"action": "say_hello"
+		}
+	]
+}
+```
+
 - for more control, you could also use regex
 
 ```yaml
@@ -98,6 +151,40 @@ commands:
           regex: "^[1-9][0-9]$"
         required: True
     action: say_hello
+```
+
+or json equivalent
+
+```json
+{
+    "description": "Dynamic CLI JSON",
+    "commands": [
+        {
+            "name": "say_hello",
+            "description": "Say hello...",
+            "args": [
+                {
+                    "name": "name",
+                    "type": "str",
+                    "help": "Name of the User.",
+                    "rules": "",
+                    "required": true
+                },
+                {
+                    "name": "age",
+                    "type": "str",
+                    "help": "Age of the User.",
+                    "required": true
+                    "rules": {
+                        "regex": "^[1-9][0-9]$"
+                    }
+                }
+            ],
+            "action": "say_hello"
+
+        }
+    ]
+}
 ```
 
 #### Main file _main.py_
