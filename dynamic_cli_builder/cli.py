@@ -1,8 +1,28 @@
-import argparse
-import re
-import logging
+"""Core CLI utilities used by *Dynamic CLI Builder*.
 
-def configure_logging(enable_logging):
+This module handles CLI construction, argument validation and command execution.
+All public functions are fully typed to improve maintainability and enable static
+analysis with tools such as *mypy*.
+"""
+
+from __future__ import annotations
+
+import argparse
+import logging
+import re
+from typing import Any, Callable, Dict
+
+
+def configure_logging(enable_logging: bool) -> None:
+    """Configure the global logging settings.
+
+    Parameters
+    ----------
+    enable_logging : bool
+        When *True*, sets the root logger level to ``INFO`` and enables a
+        human-readable formatter. When *False*, logging is silenced by raising
+        the level to ``CRITICAL``.
+    """
     if enable_logging:
         logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     else:
@@ -10,7 +30,26 @@ def configure_logging(enable_logging):
 
 logger = logging.getLogger(__name__)
 
-def validate_arg(value, rules):
+def validate_arg(value: str, rules: Dict[str, Any]) -> str:
+    """Validate a single CLI argument against a set of *rules*.
+
+    Supported rule keys
+    -------------------
+    regex : str
+        Regular expression the value must match.
+    min / max : int or float
+        Numeric boundaries enforced after coercion with ``float``.
+
+    Returns
+    -------
+    str
+        The *value* if validation succeeds.
+
+    Raises
+    ------
+    argparse.ArgumentTypeError
+        If *value* does not satisfy the rules.
+    """
     logger.debug(f"Validating argument: {value} with rules: {rules}")
     if "regex" in rules:
         if not re.match(rules["regex"], value):
@@ -24,7 +63,7 @@ def validate_arg(value, rules):
         raise argparse.ArgumentTypeError(f"Value '{value}' is greater than maximum allowed value {rules['max']}")
     return value
 
-def build_cli(config):
+def build_cli(config: Dict[str, Any]) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=config.get("description", "Dynamic CLI"))
     parser.add_argument('-log', action='store_true', help='Enable logging')
     parser.add_argument('-im', action='store_true', help='Enable Interactive Mode')
@@ -44,7 +83,7 @@ def build_cli(config):
     
     return parser
 
-def prompt_for_missing_args(parsed_args, config):
+def prompt_for_missing_args(parsed_args: argparse.Namespace, config: Dict[str, Any]) -> None:
     for command in config["commands"]:
         if parsed_args.command == command["name"]:
             for arg in command["args"]:
@@ -58,7 +97,11 @@ def prompt_for_missing_args(parsed_args, config):
                             print(e)
                     setattr(parsed_args, arg["name"], value)
 
-def execute_command(parsed_args, config, ACTIONS):
+def execute_command(
+    parsed_args: argparse.Namespace,
+    config: Dict[str, Any],
+    ACTIONS: Dict[str, Callable[..., Any]],
+) -> None:
     configure_logging(parsed_args.log)
     logger.info(f"Executing command: {parsed_args.command}")
     if(parsed_args.im):
