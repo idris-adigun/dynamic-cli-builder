@@ -1,43 +1,42 @@
-# Dynamic CLI Builder – Logic Flow
+# Dynamic CLI Builder – Architecture
+
+## System Flow
+
+See the full interactive diagram: [docs/architecture.mmd](docs/architecture.mmd)
 
 ```mermaid
+%%{
+  init: {
+    'theme': 'base',
+    'themeVariables': {
+      'primaryColor': '#f0f0f0',
+      'primaryTextColor': '#000',
+      'primaryBorderColor': '#666',
+      'lineColor': '#333',
+      'fontFamily': 'monospace'
+    }
+  }
+}%%
+
 flowchart TD
-    subgraph Developer
-        A[Developer] -->|writes| B[Test Suite]
-        A -->|edits| C[YAML/JSON Config]
-        A -->|defines| D[ACTIONS in Python]
-    end
-
-    subgraph Runtime["Runtime Flow (dynamic_cli_builder)"]
-        B -->|imports| E[load_config()]
-        C -->|read by| E
-        E -->|returns| F[config: dict]
-        F -->|input| G[build_cli()]
-        G -->|returns| H[argparse.ArgumentParser]
-        H -->|parses| I[CLI Arguments]
-        I -->|produces| J[parsed_args: Namespace]
-        J -->|input| K[execute_command()]
-        F -->|input| K
-        D -->|imported| K
+    Developer[("👨‍💻 Developer")] -->|writes| Tests[Test Suite]
+    Developer -->|edits| Config[YAML/JSON Config]
+    Developer -->|defines| Actions[ACTIONS.py]
+    
+    Tests -->|imports| load_config
+    Config -->|read by| load_config
+    
+    subgraph Runtime["dynamic_cli_builder Runtime"]
+        load_config -->|dict| build_cli
+        build_cli -->|parser| parse_args
+        parse_args -->|Namespace| execute_command
+        Actions -->|imported| execute_command
         
-        K -->|if --log-level| L[configure_logging()]
-        K -->|if -im| M[prompt_for_missing_args()]
-        M -->|fills| J
+        execute_command -->|validate| validate_arg
+        execute_command -->|log| configure_logging
+        execute_command -->|prompt| prompt_missing
         
-        K -->|validates| N[validate_arg() each arg]
-        N -->|raises| O[ValueError if invalid]
-        
-        K -->|calls| P[ACTIONS[command](**args)]
-    end
-
-    subgraph Data_Flow["Data Flow"]
-        direction LR
-        C1[Config File] -->|YAML/JSON| F
-        D1[ACTIONS.py] -->|Dict[str, Callable]| K
-        I1[CLI Input] -->|argparse| J
-        P -->|returns| R[Function Result]
-        R -->|printed| T[STDOUT/STDERR]
-        O -->|error| T
+        execute_command -->|call| run_action["ACTIONS[command](**kwargs)"]
     end
 ```
 
