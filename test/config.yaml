@@ -6,4 +6,7 @@ commands:
       - name: name
         type: str
         help: "Name of the user."
+      - name: age
+        type: int
+        help: "Age of the user."
     action: say_hello

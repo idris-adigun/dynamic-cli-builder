@@ -1,17 +1,31 @@
-"""Core CLI utilities used by *Dynamic CLI Builder*.
+"""Legacy shim kept for backward-compatibility.
 
-This module handles CLI construction, argument validation and command execution.
-All public functions are fully typed to improve maintainability and enable static
-analysis with tools such as *mypy*.
+All actual logic now lives in :pymod:`dynamic_cli_builder.builder` and
+:pymod:`dynamic_cli_builder.validators`. Importing from this module will
+continue to work, but new code should depend on the dedicated sub-modules.
 """
 
 from __future__ import annotations
 
 import argparse
 import logging
-import re
 from typing import Any, Callable, Dict
 
+from dynamic_cli_builder.builder import (
+    build_cli,
+    execute_command,
+    prompt_for_missing_args,
+)
+from dynamic_cli_builder.validators import validate_arg
+
+__all__ = [
+    "build_cli",
+    "execute_command",
+    "prompt_for_missing_args",
+    "validate_arg",
+    "configure_logging",
+    "logging",
+]
 
 def configure_logging(enable_logging: bool) -> None:
     """Configure the global logging settings.
@@ -63,7 +77,8 @@ def validate_arg(value: str, rules: Dict[str, Any]) -> str:
         raise argparse.ArgumentTypeError(f"Value '{value}' is greater than maximum allowed value {rules['max']}")
     return value
 
-def build_cli(config: Dict[str, Any]) -> argparse.ArgumentParser:
+# --- legacy implementations removed in favour of re-exported versions ---
+
     parser = argparse.ArgumentParser(description=config.get("description", "Dynamic CLI"))
     parser.add_argument('-log', action='store_true', help='Enable logging')
     parser.add_argument('-im', action='store_true', help='Enable Interactive Mode')

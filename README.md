@@ -266,18 +266,53 @@ Interactive mode is set to false by default to enable interactive mode, add _-im
 python3 main.py -im say_hello --name world --age 99
 ```
 
+## Running the CLI
+
+### 1. Recommended (v0.2+)
+
+Use the module entry-point shipped in `__main__.py`. No imports required – just point the runner at a config file and an *actions* registry:
+
+```bash
+# auto-discover config.yaml & actions.py in CWD
+python -m dynamic_cli_builder say_hello --name Alice --age 25
+
+# explicit paths
+python -m dynamic_cli_builder \
+    --config path/to/config.yaml \
+    --actions path/to/actions.py \
+    --log-level DEBUG \
+    say_hello --name Alice
+```
+
+Flags:
+* `--config/-c` – YAML/JSON config. If omitted the loader searches `config.{yaml,yml,json}` in CWD.
+* `--actions/-a` – Python file exposing `ACTIONS` dict. Defaults to `actions.py` in CWD.
+* `--log-level/-v` – `DEBUG|INFO|WARNING|ERROR|CRITICAL` (default `WARNING`). The legacy `-log` flag still enables INFO for backward-compat.
+* `-im` – Interactive Mode; prompts for any missing arguments.
+
+### 2. Legacy API (≤ v0.1)
+
+If you were importing functions directly, the *shim* in `dynamic_cli_builder.cli` keeps things working – but prefer the new API above.
+
+```python
+from dynamic_cli_builder import cli  # legacy shim
+from my_actions import ACTIONS
+
+config = cli.load_config("config.yaml")
+parser = cli.build_cli(config)
+args = parser.parse_args()
+cli.execute_command(args, config, ACTIONS)
+```
+
+All helpers (`build_cli`, `execute_command`, `validate_arg`, etc.) are re-exported so old code continues to run unchanged.
+
+---
+
 ## Roadmap
 
 > **Compatibility policy**: We follow [Semantic Versioning](https://semver.org/). All patch and minor releases will remain backward-compatible. Breaking changes will be introduced only in the next **major** release and will be accompanied by a detailed migration guide.
 
 
-### Short-term (v0.2.x)
-- Add comprehensive docstrings and type hints across the codebase
-- Split core logic into sub-modules (`validators`, `builder`, `io`) for better maintainability
-- Extend `loader.py` to load JSON files and add automatic config path discovery
-- Ship a `__main__.py` so the package can be run with `python -m dynamic_cli_builder`
-- Introduce a pytest test-suite with GitHub Actions CI (linting, unit tests, coverage gate)
-- Improve logging with configurable verbosity levels (DEBUG / INFO / WARNING)
 
 ### Mid-term (v0.3.x)
 - Enrich validation rules (choices, default values, conditional validation)
@@ -299,6 +334,30 @@ python3 main.py -im say_hello --name world --age 99
 ---
 
 ## License
+
+MIT License
+
+```
+Copyright (c) 2025 Idris Adigun
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
 
 This project is distributed under the [MIT License](LICENSE).
 
