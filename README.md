@@ -251,3 +251,31 @@ Interactive mode is set to false by default to enable interactive mode, add _-im
 ```
 python3 main.py -im say_hello --name world --age 99
 ```
+
+## Roadmap
+
+### Short-term (v0.2.x)
+- Add comprehensive docstrings and type hints across the codebase
+- Split core logic into sub-modules (`validators`, `builder`, `io`) for better maintainability
+- Extend `loader.py` to load JSON files and add automatic config path discovery
+- Ship a `__main__.py` so the package can be run with `python -m dynamic_cli_builder`
+- Introduce a pytest test-suite with GitHub Actions CI (linting, unit tests, coverage gate)
+- Improve logging with configurable verbosity levels (DEBUG / INFO / WARNING)
+
+### Mid-term (v0.3.x)
+- Enrich validation rules (choices, default values, conditional validation)
+- Validate configs with `pydantic` or `jsonschema` before building the CLI
+- Provide an interactive wizard for generating YAML/JSON configs
+- Automate semantic versioning & releases via `semantic-release` or `bumpver`
+
+### Long-term (v1.0)
+- Migrate command parsing to `typer` for rich help text, autocompletion and colored output
+- Introduce a plugin architecture for custom argument types, validators and output handlers
+- Publish full documentation site (Sphinx + ReadTheDocs) with tutorials and API reference
+- Achieve >90 % test coverage and add performance benchmarks
+- Offer a Docker image and Gitpod template for instant try-out
+
+### Nice-to-have Explorations
+- Terminal UI (TUI) mode powered by `textual` / `rich`
+- VS Code extension for live schema preview and command auto-completion
+
