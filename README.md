@@ -1,15 +1,29 @@
 # Dynamic CLI Builder
 
-Dynamic CLI Builder is a tool that simplifies the creation of interactive command-line interfaces (CLI) with minimal changes to your Python scripts, you can enable CLI functionality by adding methods to the registry and describing the CLI structure using YAML or JSON.
+[![PyPI version](https://img.shields.io/pypi/v/dynamic-cli-builder.svg)](https://pypi.org/project/dynamic-cli-builder/)
+[![License](https://img.shields.io/github/license/idris-adigun/dynamic-cli-builder)](LICENSE)
+[![CI](https://github.com/idris-adigun/dynamic-cli-builder/actions/workflows/ci.yml/badge.svg)](https://github.com/idris-adigun/dynamic-cli-builder/actions/workflows/ci.yml)
+
+**Dynamic CLI Builder** simplifies the creation of _interactive, configurable_ command-line interfaces (CLI) for your Python scripts.
+Define your commands declaratively in YAML or JSON, register the corresponding Python functions, and obtain a production-ready CLI complete with validation, logging, and an optional interactive mode.
+
+## Table of Contents
+- [Features](#features)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Command Reference](#command-reference)
+- [Logging & Interactive Mode](#logging--interactive-mode)
+- [Roadmap](#roadmap)
+- [License](#license)
 
 ## Features
 
-- Easy to use
-- Highly customizable
-- Supports multiple command structures
-- Interactive cli
-- custom rules
-- Logging
+- 🏗️  Declarative – design your CLI in YAML/JSON, no `argparse` boilerplate
+- ⚙️  Highly customizable with pluggable validators and hooks
+- 🔀 Supports nested commands & multiple command structures
+- 🖥️  Optional interactive mode for prompting missing arguments
+- 🔒 Built-in validation rules (min/max, regex, choices, etc.)
+- 📜 Structured, configurable logging
 
 ## Installation
 
@@ -19,11 +33,11 @@ To install Dynamic CLI Builder, use the following command:
 pip install dynamic-cli-builder
 ```
 
-## Usage
+## Quick Start
 
 Here is a simple example to get you started:
 
-#### Create Actions
+### 1. Create Actions
 
 Actions are basically function to be executed base on command. <br> For instance _actions.py_
 
@@ -39,7 +53,7 @@ ACTIONS = {
 
 you can have multiple function registered
 
-#### Create yaml or json config
+### 2. Define YAML/JSON Config
 
 _config.yaml_
 
@@ -76,7 +90,7 @@ commands:
 }
 ```
 
-#### Add rules for custom validation
+### 3. Add Validation Rules
 
 - min, max validation
 
@@ -187,7 +201,7 @@ or json equivalent
 }
 ```
 
-#### Main file _main.py_
+### 4. Run the Builder (_main.py_)
 
 To bind this all together
 
@@ -198,9 +212,9 @@ from actions import ACTIONS
 run_builder('config.yaml', ACTIONS)
 ```
 
-#### CLI Command
+## Command Reference
 
-##### Global Help
+### Global Help
 
 ```
 python3 <name_of_main_file> -h
@@ -212,7 +226,7 @@ For Instance:
 python3 main.py -h
 ```
 
-#### command specific help
+### Command-Specific Help
 
 ```
  python3 <name_of_main_file> <name_of_command> -h
@@ -228,7 +242,7 @@ You should see
 
 > Hello World!, you are 99 years old
 
-#### Logging Mode
+## Logging & Interactive Mode
 
 logging is set to false by default, to enable logging add _-log_ to your command just after the file name
 
@@ -244,7 +258,7 @@ Output:
 
 > Hello World!, you are 99 years old.
 
-#### Interactive Mode
+
 
 Interactive mode is set to false by default to enable interactive mode, add _-im_ to your command For instance:
 
@@ -253,6 +267,9 @@ python3 main.py -im say_hello --name world --age 99
 ```
 
 ## Roadmap
+
+> **Compatibility policy**: We follow [Semantic Versioning](https://semver.org/). All patch and minor releases will remain backward-compatible. Breaking changes will be introduced only in the next **major** release and will be accompanied by a detailed migration guide.
+
 
 ### Short-term (v0.2.x)
 - Add comprehensive docstrings and type hints across the codebase
@@ -278,4 +295,11 @@ python3 main.py -im say_hello --name world --age 99
 ### Nice-to-have Explorations
 - Terminal UI (TUI) mode powered by `textual` / `rich`
 - VS Code extension for live schema preview and command auto-completion
+
+---
+
+## License
+
+This project is distributed under the [MIT License](LICENSE).
+
 
