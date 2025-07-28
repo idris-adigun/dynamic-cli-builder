@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ main, Short-term ]
+    branches: [ main, staging Short-term ]
   pull_request:
     branches: [ main ]
 
