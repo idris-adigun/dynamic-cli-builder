@@ -19,7 +19,7 @@ See the full interactive diagram: [docs/architecture.mmd](docs/architecture.mmd)
 }%%
 
 flowchart TD
-    Developer[("👨‍💻 Developer")] -->|writes| Tests[Test Suite]
+    Developer[("👨‍💻 Developer")] -->|writes| Tests[Test Suite (*.py)]
     Developer -->|edits| Config[YAML/JSON Config]
     Developer -->|defines| Actions[ACTIONS.py]
     
@@ -27,8 +27,8 @@ flowchart TD
     Config -->|read by| load_config
     
     subgraph Runtime["dynamic_cli_builder Runtime"]
-        load_config -->|dict| build_cli
-        build_cli -->|parser| parse_args
+        load_config -->|dict| build_cli(config)
+        build_cli(config) -->|parser| parse_args
         parse_args -->|Namespace| execute_command
         Actions -->|imported| execute_command
         
