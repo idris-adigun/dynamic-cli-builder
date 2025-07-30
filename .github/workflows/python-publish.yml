@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -34,6 +36,14 @@ jobs:
         run: |
           pip install pytest
           pytest -q
+
+      - name: Create release tag if missing
+        if: github.ref == 'refs/heads/main'
+        run: |
+          VERSION=$(python setup.py --version)
+          if ! git rev-parse "v$VERSION" >/dev/null 2>&1; then
+            git tag "v$VERSION"
+          fi
 
       - name: Bump version & create tag (semantic-release)
         if: github.ref == 'refs/heads/main'
