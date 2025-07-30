@@ -42,7 +42,7 @@ jobs:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
         run: |
           pip install python-semantic-release
-          semantic-release version --no-push --changelog --skip-ci-tag
+          semantic-release version --no-push --changelog --print-tag
           git push --follow-tags
 
       - name: Publish to PyPI
