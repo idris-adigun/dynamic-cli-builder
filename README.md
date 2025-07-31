@@ -47,7 +47,7 @@ This will install the `dcb` command-line tool that you can use to run your CLI a
 
 ## Version Information
 
-### Version 0.2.1 and above
+### Version 0.2.3 and above
 
 Starting from version 0.2.0, the CLI interface has been significantly improved with better error handling, more intuitive command structure, and additional features. Key changes include:
 
