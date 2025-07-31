@@ -52,20 +52,38 @@ def _import_actions(path: Path) -> Dict[str, Any]:
 def main(argv: list[str] | None = None) -> None:  # noqa: D401
     parser = argparse.ArgumentParser(description="Run Dynamic CLI Builder")
     parser.add_argument(
-        "--config", "-c", type=str, default=None, help="Path to config file"
+        "--config", "-c", type=str, default=None, 
+        help="Path to config file (default: looks for config.yaml, config.yml, or config.json in current directory)"
     )
     parser.add_argument(
-        "--actions", "-a", type=str, default="actions.py", help="Path to actions file"
+        "--actions", "-a", type=str, default="actions.py", 
+        help="Path to actions file (default: actions.py in current directory)"
     )
+
+    # If no arguments are provided, show help
+    if len(sys.argv) == 1 and (argv is None or len(argv) == 0):
+        parser.print_help()
+        sys.exit(0)
 
     args, unknown = parser.parse_known_intermixed_args(argv)
 
-    actions_path = Path(args.actions)
-    actions_mapping = _import_actions(actions_path)
-
-    # Delegate to high-level helper; pass through any additional CLI args
-    sys.argv = [sys.argv[0], *unknown]
-    run_builder(args.config if args.config else None, actions_mapping)
+    try:
+        actions_path = Path(args.actions).resolve()
+        actions_mapping = _import_actions(actions_path)
+        
+        # Pass through any additional CLI args to the command
+        if unknown and unknown[0] not in ["--help", "-h"]:
+            # If there's a command, pass it through
+            sys.argv = [sys.argv[0], *unknown]
+            run_builder(args.config, actions_mapping)
+        else:
+            # If no command provided, show help
+            parser.print_help()
+            sys.exit(0)
+            
+    except (FileNotFoundError, ImportError, AttributeError) as e:
+        print(f"Error: {str(e)}", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":  # pragma: no cover

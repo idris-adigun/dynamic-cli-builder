@@ -10,10 +10,15 @@ Define your commands declaratively in YAML or JSON, register the corresponding P
 ## Table of Contents
 - [Features](#features)
 - [Installation](#installation)
+- [Version Information](#version-information)
+  - [Version 0.2.x and above](#version-02x-and-above)
+  - [Version 0.1.x and below](#version-01x-and-below)
 - [Quick Start](#quick-start)
-- [Command Reference](#command-reference)
-- [Logging & Interactive Mode](#logging--interactive-mode)
+- [Configuration](#configuration)
+- [Advanced Usage](#advanced-usage)
+- [Best Practices](#best-practices)
 - [Roadmap](#roadmap)
+- [Contributing](#contributing)
 - [License](#license)
 
 ## Features
@@ -24,75 +29,311 @@ Define your commands declaratively in YAML or JSON, register the corresponding P
 - 🖥️  Optional interactive mode for prompting missing arguments
 - 🔒 Built-in validation rules (min/max, regex, choices, etc.)
 - 📜 Structured, configurable logging
+- 🚀 Zero configuration mode with smart defaults
 
 ## Installation
 
-To install Dynamic CLI Builder, use the following command:
+Install using pip:
 
 ```bash
+# Basic installation
 pip install dynamic-cli-builder
+
+# For development
+pip install -e .
 ```
+
+This will install the `dcb` command-line tool that you can use to run your CLI applications.
+
+## Version Information
+
+### Version 0.2.1 and above
+
+Starting from version 0.2.0, the CLI interface has been significantly improved with better error handling, more intuitive command structure, and additional features. Key changes include:
+
+- New command structure: `dcb [OPTIONS] COMMAND [ARGS]...`
+- Support for both YAML and JSON configuration files
+- Built-in interactive mode
+- Improved error messages and help text
+- Better support for environment variables
+- More flexible configuration options
+
+### Version 0.1.x and below
+
+For versions before 0.2.0, the CLI had a different interface and fewer features:
+
+- Old command structure: ` python3 NAME_OF_MAIN_FILE [OPTIONS] COMMAND [ARGS]...`
+- Support for both YAML and JSON configuration files
+- Built-in interactive mode
+- Basic error handling
+
+If you're using version 0.1.x, consider upgrading to the latest version for better features and support. To upgrade:
+
+```bash
+pip install --upgrade dynamic-cli-builder
+```
+
+> **Note**: Version 0.2.0 includes breaking changes. Please update your configuration files and scripts accordingly.
 
 ## Quick Start
 
-Here is a simple example to get you started:
+### 1. Create a Configuration File
 
-### 1. Create Actions
+Create a `config.yaml` file to define your CLI structure:
 
-Actions are basically function to be executed base on command. <br> For instance _actions.py_
+```yaml
+commands:
+  say_hello:
+    help: "Say hello to someone"
+    args:
+      name:
+        type: str
+        help: "Name of the person to greet"
+        required: true
+      age:
+        type: int
+        help: "Age of the person"
+        default: 42
+```
+
+### 2. Create an Actions File
+
+Create an `actions.py` file with your command implementations:
 
 ```python
-def say_hello(name: str, age: int):
-    print(f"Hello {name}!, you are {age} years old.")
+def say_hello(name: str, age: int) -> None:
+    """Greet a person with their name and age."""
+    print(f"Hello {name}, you are {age} years old!")
 
-# Action Registry
+# Required: Map command names to their implementations
 ACTIONS = {
-    "say_hello": say_hello,
+    "say_hello": say_hello
 }
 ```
 
-you can have multiple function registered
+### 3. Run Your CLI
 
-### 2. Define YAML/JSON Config
+Use either of these commands to run your CLI:
 
-_config.yaml_
+```bash
+# Using the dcb command (recommended)
+dcb --config config.yaml say_hello --name Alice
+
+# Or using Python module
+python -m dynamic_cli_builder --config config.yaml say_hello --name Alice
+```
+
+This will output:
+```
+Hello Alice, you are 42 years old!
+```
+
+## Usage
+
+### Basic Usage
+
+```bash
+dcb [OPTIONS] COMMAND [ARGS]...
+```
+
+### Available Options
+
+- `--config`, `-c`: Path to config file (default: looks for `config.yaml`, `config.yml`, or `config.json`)
+- `--actions`, `-a`: Path to actions file (default: `actions.py` in current directory)
+- `--log-level`, `-l`: Set log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+- `--interactive`, `-i`: Enable interactive mode
+- `--help`, `-h`: Show help message
+
+### Examples
+
+```bash
+# Run with custom config and actions
+dcb -c my_config.yaml -a my_actions.py my_command --arg1 value1
+
+# Enable debug logging
+dcb -l DEBUG my_command
+
+# Run in interactive mode
+dcb -i my_command
+```
+
+## Configuration
+
+### File Format
+
+You can use either YAML or JSON for your configuration files. Both formats support the same structure.
+
+#### YAML Example
 
 ```yaml
-description: "Dynamic CLI Builder Example"
 commands:
-  - name: say_hello
-    description: "Say Hello..."
+  greet:
+    help: "Greet a person"
     args:
-      - name: name
+      name:
         type: str
-        help: "Name of the user."
-    action: say_hello
+        help: "Person's name"
+        required: true
+      age:
+        type: int
+        help: "Person's age"
+        default: 42
+      title:
+        type: str
+        help: "Person's title"
+        choices: ["Mr", "Mrs", "Ms", "Dr"]
+        default: "Mr"
 ```
+
+#### JSON Example
 
 ```json
 {
-	"description": "Dynamic CLI JSON",
-	"commands": [
-		{
-			"name": "say_hello",
-			"description": "Say hello...",
-			"args": [
-				{
-					"name": "name",
-					"type": "str",
-					"help": "Name of the User.",
-					"rules": ""
-				}
-			],
-			"action": "say_hello"
-		}
-	]
+  "commands": {
+    "greet": {
+      "help": "Greet a person",
+      "args": {
+        "name": {
+          "type": "str",
+          "help": "Person's name",
+          "required": true
+        },
+        "age": {
+          "type": "int",
+          "help": "Person's age",
+          "default": 42
+        },
+        "title": {
+          "type": "str",
+          "help": "Person's title",
+          "choices": ["Mr", "Mrs", "Ms", "Dr"],
+          "default": "Mr"
+        }
+      }
+    }
+  }
 }
 ```
 
-### 3. Add Validation Rules
+### Argument Types
 
-- min, max validation
+Supported argument types:
+- `str`: String value (default)
+- `int`: Integer value
+- `float`: Floating-point number
+- `bool`: Boolean flag (no value needed)
+- `list`: List of values
+- `dict`: Dictionary of values
+
+### Validation Rules
+
+Add validation rules to your arguments:
+
+```yaml
+commands:
+  create_user:
+    help: "Create a new user"
+    args:
+      username:
+        type: str
+        help: "Username (3-20 chars, alphanumeric)"
+        regex: '^[a-zA-Z0-9_]{3,20}$'
+      email:
+        type: str
+        help: "Email address"
+        required: true
+      age:
+        type: int
+        help: "User's age (18-120)"
+        min: 18
+        max: 120
+```
+
+## Advanced Usage
+
+### Logging
+
+Control logging verbosity with the `--log-level` option:
+
+```bash
+# Show debug messages
+dcb --log-level DEBUG my_command
+
+# Only show errors
+dcb --log-level ERROR my_command
+
+# Available levels: DEBUG, INFO, WARNING, ERROR, CRITICAL
+```
+
+### Interactive Mode
+
+Enable interactive mode to be prompted for missing required arguments:
+
+```bash
+dcb --interactive create_user
+```
+
+You'll be prompted to enter values for any missing required arguments.
+
+### Environment Variables
+
+You can use environment variables for configuration:
+
+```bash
+# Set config file via environment
+export DCB_CONFIG=my_config.yaml
+dcb my_command
+
+# Set log level
+export DCB_LOG_LEVEL=DEBUG
+dcb my_command
+```
+
+### Programmatic Usage
+
+Use the builder in your Python code:
+
+```python
+from dynamic_cli_builder import run_builder
+
+def greet(name: str, age: int, title: str = "Mr") -> None:
+    """Display a greeting."""
+    print(f"Hello {title} {name}, you are {age} years old!")
+
+# Define your command mappings
+ACTIONS = {
+    "greet": greet
+}
+
+# Run with custom configuration
+config = {
+    "commands": {
+        "greet": {
+            "help": "Greet someone",
+            "args": {
+                "name": {"type": "str", "required": True},
+                "age": {"type": "int", "required": True},
+                "title": {"type": "str", "choices": ["Mr", "Mrs", "Ms", "Dr"], "default": "Mr"}
+            }
+        }
+    }
+}
+
+if __name__ == "__main__":
+    run_builder(config=config, actions=ACTIONS)
+```
+
+## Best Practices
+
+1. **Keep Actions Simple**: Each action should do one thing well
+2. **Use Type Hints**: Always type hint your action functions
+3. **Validate Early**: Use the built-in validation rules when possible
+4. **Document Help Text**: Provide clear help text for all commands and arguments
+5. **Test Thoroughly**: Test your CLI with various inputs and edge cases
+
+## Roadmap
+
+### Upcoming Features
 
 ```yaml
 description: "Dynamic CLI Builder Example"

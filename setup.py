@@ -32,7 +32,8 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "dynamic-cli=dynamic_cli_builder:run_builder",
+            "dcb=dynamic_cli_builder.__main__:main",
+            "dynamic-cli-builder=dynamic_cli_builder.__main__:main"
         ],
     },
     classifiers=[
