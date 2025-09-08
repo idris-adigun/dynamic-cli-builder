@@ -28,6 +28,7 @@ from types import ModuleType
 from typing import Any, Dict
 
 from dynamic_cli_builder import run_builder
+from dynamic_cli_builder.generator import generate_config, dump_config
 
 
 def _import_actions(path: Path) -> Dict[str, Any]:
@@ -49,6 +50,17 @@ def _import_actions(path: Path) -> Dict[str, Any]:
         ) from exc
 
 
+def _import_module(path: Path) -> ModuleType:
+    if not path.exists():
+        raise FileNotFoundError(f"Module file not found: {path}")
+    spec = importlib.util.spec_from_file_location("actions", str(path))
+    if spec is None or spec.loader is None:
+        raise ImportError(f"Unable to import module at {path}")
+    module = ModuleType("actions")
+    spec.loader.exec_module(module)  # type: ignore[arg-type]
+    return module
+
+
 def main(argv: list[str] | None = None) -> None:  # noqa: D401
     parser = argparse.ArgumentParser(description="Run Dynamic CLI Builder")
     parser.add_argument(
@@ -58,6 +70,18 @@ def main(argv: list[str] | None = None) -> None:  # noqa: D401
     parser.add_argument(
         "--actions", "-a", type=str, default="actions.py", 
         help="Path to actions file (default: actions.py in current directory)"
+    )
+    parser.add_argument(
+        "--generate", "-g", action="store_true",
+        help="Generate a config from the actions module and print to stdout (or --output)"
+    )
+    parser.add_argument(
+        "--format", "-f", choices=["yaml", "json"], default="yaml",
+        help="Output format when using --generate"
+    )
+    parser.add_argument(
+        "--output", "-o", default="-",
+        help="Output path for generated config (default: '-' for stdout)"
     )
 
     # If no arguments are provided, show help
@@ -69,8 +93,19 @@ def main(argv: list[str] | None = None) -> None:  # noqa: D401
 
     try:
         actions_path = Path(args.actions).resolve()
+
+        if args.generate:
+            module = _import_module(actions_path)
+            actions_mapping = getattr(module, "ACTIONS", None)
+            cfg = generate_config(module, actions_mapping)
+            content = dump_config(cfg, args.format)
+            if args.output == "-":
+                print(content)
+            else:
+                Path(args.output).write_text(content, encoding="utf-8")
+            return
+
         actions_mapping = _import_actions(actions_path)
-        
         # Pass through any additional CLI args to the command
         if unknown and unknown[0] not in ["--help", "-h"]:
             # If there's a command, pass it through
@@ -80,8 +115,8 @@ def main(argv: list[str] | None = None) -> None:  # noqa: D401
             # If no command provided, show help
             parser.print_help()
             sys.exit(0)
-            
-    except (FileNotFoundError, ImportError, AttributeError) as e:
+
+    except (FileNotFoundError, ImportError, AttributeError, ValueError) as e:
         print(f"Error: {str(e)}", file=sys.stderr)
         sys.exit(1)
 

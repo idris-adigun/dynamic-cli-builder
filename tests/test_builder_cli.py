@@ -49,3 +49,37 @@ def test_execute_command(sample_config):
     ns = parser.parse_args(["--log-level", "DEBUG", "add", "--a", "3", "--b", "4"])
     execute_command(ns, sample_config, actions)
     assert seen["result"] == 7
+
+
+def test_choices_and_default_execution():
+    cfg = {
+        "description": "sample",
+        "commands": [
+            {
+                "name": "pick",
+                "description": "Pick a choice",
+                "args": [
+                    {"name": "opt", "type": "int", "help": "Option", "choices": [1, 2, 3], "default": 2},
+                ],
+                "action": "pick",
+            }
+        ],
+    }
+
+    seen = {}
+
+    def pick(opt: int):
+        seen["opt"] = opt
+
+    actions = {"pick": pick}
+
+    parser = build_cli(cfg)
+    # Use default (2)
+    ns = parser.parse_args(["pick"])  # no --opt provided
+    execute_command(ns, cfg, actions)
+    assert seen["opt"] == 2
+
+    # Provide explicit valid choice
+    ns = parser.parse_args(["pick", "--opt", "3"])
+    execute_command(ns, cfg, actions)
+    assert seen["opt"] == 3

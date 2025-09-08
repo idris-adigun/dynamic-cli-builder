@@ -15,6 +15,7 @@ import pytest
 
 import dynamic_cli_builder.builder as builder_mod
 from dynamic_cli_builder.validators import validate_arg
+from dynamic_cli_builder.loader import load_config
 
 
 # ---------------------------------------------------------------------------
@@ -145,3 +146,45 @@ def test_cli_shim_exports() -> None:
         "validate_arg",
     ]:
         assert hasattr(shim, attr)
+
+
+def test_bool_and_json_types(tmp_path: Path) -> None:
+    cfg = {
+        "description": "types",
+        "commands": [
+            {
+                "name": "echo",
+                "description": "Echo",
+                "args": [
+                    {"name": "flag", "type": "bool", "help": "flag", "default": False},
+                    {"name": "items", "type": "list", "help": "list", "default": [1]},
+                    {"name": "obj", "type": "dict", "help": "dict", "default": {"a": 1}},
+                ],
+                "action": "echo",
+            }
+        ],
+    }
+    seen: Dict[str, Any] = {}
+
+    def echo(flag: bool, items, obj) -> None:  # type: ignore[no-untyped-def]
+        seen.update(flag=flag, items=items, obj=obj)
+
+    import dynamic_cli_builder.builder as b
+    p = b.build_cli(cfg)
+    ns = p.parse_args([
+        "echo",
+        "--flag", "true",
+        "--items", "[1,2,3]",
+        "--obj", '{"k": 2}',
+    ])
+    b.execute_command(ns, cfg, {"echo": echo})
+    assert seen["flag"] is True
+    assert seen["items"] == [1, 2, 3]
+    assert seen["obj"] == {"k": 2}
+
+
+def test_config_schema_validation_errors(tmp_path: Path) -> None:
+    bad = tmp_path / "bad.yaml"
+    bad.write_text("description: oops\ncommands: []\n", encoding="utf-8")
+    with pytest.raises(ValueError):
+        load_config(bad)
