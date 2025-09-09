@@ -6,27 +6,31 @@ flowchart TD
     Developer[Developer] -->|edits| Config[Config File]
     Developer -->|writes| Tests[Test Suite]
     Developer -->|defines| Actions[Actions Module]
-    
+    Developer -->|generates| Gen[generate_config dump_config]
+    Actions -->|inspect| Gen
+    Gen -->|writes| Config
+
     %% Runtime
     Config -->|read by| Load[load_config]
-    Load -->|dict| Build[build_cli]
+    Load -->|dict| Validate[validate config structure]
+    Validate -->|ok| Build[build_cli safe types choices defaults]
     Build -->|parser| Parse[parse_args]
     Parse -->|args| Exec[execute_command]
     Actions -->|imported| Exec
-    
+
     %% Features
     Exec -->|if -im| Prompt[prompt_missing]
     Prompt -->|fills| Parse
-    
+
     %% Data Flow
     Exec -->|calls| Run[Run Action]
     Run -->|result| Out[Output]
-    
+
     %% Styling
     classDef dev fill:#dfd,stroke:#333
     classDef runtime fill:#ddf,stroke:#333
     classDef data fill:#fdd,stroke:#333
-    
+
     class Developer,Tests dev
-    class Load,Build,Parse,Exec runtime
+    class Load,Validate,Build,Parse,Exec,Gen runtime
     class Config,Actions,Run,Out data
