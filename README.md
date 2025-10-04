@@ -1,13 +1,11 @@
 # Dynamic CLI Builder
 
-[![PyPI version](https://img.shields.io/pypi/v/dynamic-cli-builder.svg)](https://pypi.org/project/dynamic-cli-builder/)
-[![License](https://img.shields.io/github/license/idris-adigun/dynamic-cli-builder)](LICENSE)
-[![CI](https://github.com/idris-adigun/dynamic-cli-builder/actions/workflows/ci.yml/badge.svg)](https://github.com/idris-adigun/dynamic-cli-builder/actions/workflows/ci.yml)
+[![PyPI version](https://img.shields.io/pypi/v/dynamic-cli-builder.svg)](https://pypi.org/project/dynamic-cli-builder/) [![License](https://img.shields.io/github/license/idris-adigun/dynamic-cli-builder)](LICENSE) [![CI](https://github.com/idris-adigun/dynamic-cli-builder/actions/workflows/ci.yml/badge.svg)](https://github.com/idris-adigun/dynamic-cli-builder/actions/workflows/ci.yml)
 
-**Dynamic CLI Builder** simplifies the creation of _interactive, configurable_ command-line interfaces (CLI) for your Python scripts.
-Define your commands declaratively in YAML or JSON, register the corresponding Python functions, and obtain a production-ready CLI complete with validation, logging, and an optional interactive mode.
+**Dynamic CLI Builder** simplifies the creation of _interactive, configurable_ command-line interfaces (CLI) for your Python scripts. Define your commands declaratively in YAML or JSON, register the corresponding Python functions, and obtain a production-ready CLI complete with validation, logging, and an optional interactive mode.
 
 ## Table of Contents
+
 - [Features](#features)
 - [Installation](#installation)
 - [Version Information](#version-information)
@@ -24,13 +22,13 @@ Define your commands declaratively in YAML or JSON, register the corresponding P
 
 ## Features
 
-- 🏗️  Declarative – design your CLI in YAML/JSON, no `argparse` boilerplate
-- ⚙️  Highly customizable with pluggable validators and hooks
-- 🔀 Supports nested commands & multiple command structures
-- 🖥️  Optional interactive mode for prompting missing arguments
-- 🔒 Built-in validation rules (min/max, regex, choices, etc.)
-- 📜 Structured, configurable logging
-- 🚀 Zero configuration mode with smart defaults
+- Declarative – design your CLI in YAML/JSON, no `argparse` boilerplate
+- Highly customizable with pluggable validators and hooks
+- Supports nested commands & multiple command structures
+- Optional interactive mode for prompting missing arguments
+- Built-in validation rules (min/max, regex, choices, etc.)
+- Structured, configurable logging
+- Zero configuration mode with smart defaults
 
 ## Installation
 
@@ -125,6 +123,7 @@ python -m dynamic_cli_builder --config config.yaml say_hello --name Alice
 ```
 
 This will output:
+
 ```
 Hello Alice, you are 42 years old!
 ```
@@ -190,35 +189,36 @@ commands:
 
 ```json
 {
-  "commands": {
-    "greet": {
-      "help": "Greet a person",
-      "args": {
-        "name": {
-          "type": "str",
-          "help": "Person's name",
-          "required": true
-        },
-        "age": {
-          "type": "int",
-          "help": "Person's age",
-          "default": 42
-        },
-        "title": {
-          "type": "str",
-          "help": "Person's title",
-          "choices": ["Mr", "Mrs", "Ms", "Dr"],
-          "default": "Mr"
-        }
-      }
-    }
-  }
+	"commands": {
+		"greet": {
+			"help": "Greet a person",
+			"args": {
+				"name": {
+					"type": "str",
+					"help": "Person's name",
+					"required": true
+				},
+				"age": {
+					"type": "int",
+					"help": "Person's age",
+					"default": 42
+				},
+				"title": {
+					"type": "str",
+					"help": "Person's title",
+					"choices": ["Mr", "Mrs", "Ms", "Dr"],
+					"default": "Mr"
+				}
+			}
+		}
+	}
 }
 ```
 
 ### Argument Types
 
 Supported argument types:
+
 - `str`: String value (default)
 - `int`: Integer value
 - `float`: Floating-point number
@@ -238,7 +238,7 @@ commands:
       username:
         type: str
         help: "Username (3-20 chars, alphanumeric)"
-        regex: '^[a-zA-Z0-9_]{3,20}$'
+        regex: "^[a-zA-Z0-9_]{3,20}$"
       email:
         type: str
         help: "Email address"
@@ -293,6 +293,7 @@ dcb --actions path/to/actions.py --generate --format yaml --output config.yaml
 ```
 
 Behavior:
+
 - Prefers `ACTIONS` mapping in the module; falls back to top-level callables.
 - Uses first line of function docstring as command description.
 - Infers types from annotations: `str`, `int`, `float`, `bool`; complex types → `list`/`dict`/`json`.
@@ -515,8 +516,6 @@ Output:
 
 > Hello World!, you are 99 years old.
 
-
-
 Interactive mode is set to false by default to enable interactive mode, add _-im_ to your command For instance:
 
 ```
@@ -527,7 +526,7 @@ python3 main.py -im say_hello --name world --age 99
 
 ### 1. Recommended (v0.2+)
 
-Use the module entry-point shipped in `__main__.py`. No imports required – just point the runner at a config file and an *actions* registry:
+Use the module entry-point shipped in `__main__.py`. No imports required – just point the runner at a config file and an _actions_ registry:
 
 ```bash
 # auto-discover config.yaml & actions.py in CWD
@@ -542,14 +541,15 @@ python -m dynamic_cli_builder \
 ```
 
 Flags:
-* `--config/-c` – YAML/JSON config. If omitted the loader searches `config.{yaml,yml,json}` in CWD.
-* `--actions/-a` – Python file exposing `ACTIONS` dict. Defaults to `actions.py` in CWD.
-* `--log-level/-v` – `DEBUG|INFO|WARNING|ERROR|CRITICAL` (default `WARNING`). The legacy `-log` flag still enables INFO for backward-compat.
-* `-im` – Interactive Mode; prompts for any missing arguments.
+
+- `--config/-c` – YAML/JSON config. If omitted the loader searches `config.{yaml,yml,json}` in CWD.
+- `--actions/-a` – Python file exposing `ACTIONS` dict. Defaults to `actions.py` in CWD.
+- `--log-level/-v` – `DEBUG|INFO|WARNING|ERROR|CRITICAL` (default `WARNING`). The legacy `-log` flag still enables INFO for backward-compat.
+- `-im` – Interactive Mode; prompts for any missing arguments.
 
 ### 2. Legacy API (≤ v0.1)
 
-If you were importing functions directly, the *shim* in `dynamic_cli_builder.cli` keeps things working – but prefer the new API above.
+If you were importing functions directly, the _shim_ in `dynamic_cli_builder.cli` keeps things working – but prefer the new API above.
 
 ```python
 from dynamic_cli_builder import cli  # legacy shim
@@ -569,15 +569,15 @@ All helpers (`build_cli`, `execute_command`, `validate_arg`, etc.) are re-export
 
 > **Compatibility policy**: We follow [Semantic Versioning](https://semver.org/). All patch and minor releases will remain backward-compatible. Breaking changes will be introduced only in the next **major** release and will be accompanied by a detailed migration guide.
 
-
-
 ### Mid-term (v0.3.x)
+
 - Enrich validation rules (choices, default values, conditional validation)
 - Validate configs with `pydantic` or `jsonschema` before building the CLI
 - Provide an interactive wizard for generating YAML/JSON configs
 - Automate semantic versioning & releases via `semantic-release` or `bumpver`
 
 ### Long-term (v1.0)
+
 - Migrate command parsing to `typer` for rich help text, autocompletion and colored output
 - Introduce a plugin architecture for custom argument types, validators and output handlers
 - Publish full documentation site (Sphinx + ReadTheDocs) with tutorials and API reference
@@ -585,6 +585,7 @@ All helpers (`build_cli`, `execute_command`, `validate_arg`, etc.) are re-export
 - Offer a Docker image and Gitpod template for instant try-out
 
 ### Nice-to-have Explorations
+
 - Terminal UI (TUI) mode powered by `textual` / `rich`
 - VS Code extension for live schema preview and command auto-completion
 
