@@ -16,6 +16,7 @@ Define your commands declaratively in YAML or JSON, register the corresponding P
 - [Quick Start](#quick-start)
 - [Configuration](#configuration)
 - [Advanced Usage](#advanced-usage)
+- [Generate Config](#generate-config)
 - [Best Practices](#best-practices)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
@@ -275,19 +276,34 @@ dcb --interactive create_user
 
 You'll be prompted to enter values for any missing required arguments.
 
-### Environment Variables
+### Generate Config
 
-You can use environment variables for configuration:
+Generate a starter YAML/JSON config by pointing the tool at your actions file. The generator introspects your functions, using type hints and defaults to infer argument types and requirements.
 
 ```bash
-# Set config file via environment
-export DCB_CONFIG=my_config.yaml
-dcb my_command
+# Print YAML to stdout
+python -m dynamic_cli_builder --actions path/to/actions.py --generate
 
-# Set log level
-export DCB_LOG_LEVEL=DEBUG
-dcb my_command
+# Write JSON to a file
+python -m dynamic_cli_builder --actions path/to/actions.py --generate \
+  --format json --output config.json
+
+# Using the console script
+dcb --actions path/to/actions.py --generate --format yaml --output config.yaml
 ```
+
+Behavior:
+- Prefers `ACTIONS` mapping in the module; falls back to top-level callables.
+- Uses first line of function docstring as command description.
+- Infers types from annotations: `str`, `int`, `float`, `bool`; complex types → `list`/`dict`/`json`.
+- Marks params without defaults as `required: true`; otherwise sets `default`.
+- Skips private names (`_foo`), `*args`, and `**kwargs`.
+
+### Notes on Types
+
+- Primitive types supported: `str`, `int`, `float`, `bool`.
+- For complex values (`list`, `dict`, `json`), pass JSON literals, e.g. `--items '["a","b"]'` or `--cfg '{"k":1}'`.
+- The `-log` flag is deprecated; prefer `--log-level INFO`.
 
 ### Programmatic Usage
 
@@ -601,5 +617,3 @@ SOFTWARE.
 ```
 
 This project is distributed under the [MIT License](LICENSE).
-
-

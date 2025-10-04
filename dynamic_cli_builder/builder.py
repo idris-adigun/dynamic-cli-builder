@@ -3,7 +3,9 @@ from __future__ import annotations
 
 import argparse
 import logging
-from typing import Any, Dict, Callable
+from typing import Any, Dict, Callable, Callable as _Callable
+
+import json
 
 from dynamic_cli_builder.validators import validate_arg
 
@@ -15,6 +17,32 @@ __all__ = ["build_cli", "prompt_for_missing_args", "execute_command", "configure
 def configure_logging(level: str = "WARNING") -> None:
     """Configure root logger according to *level* string."""
     logging.basicConfig(level=getattr(logging, level), format="%(asctime)s - %(levelname)s - %(message)s")
+
+def _str2bool(val: str) -> bool:
+    truthy = {"1", "true", "t", "yes", "y", "on"}
+    falsy = {"0", "false", "f", "no", "n", "off"}
+    v = val.strip().lower()
+    if v in truthy:
+        return True
+    if v in falsy:
+        return False
+    raise argparse.ArgumentTypeError(f"Invalid boolean value: {val}")
+
+
+def _type_converter(type_name: str) -> _Callable[[str], Any]:
+    """Return a safe converter function for a configured type name."""
+    mapping: Dict[str, _Callable[[str], Any]] = {
+        "str": str,
+        "int": int,
+        "float": float,
+        "bool": _str2bool,
+        # For complex types, expect JSON literals (e.g. '[1,2]' or '{"a":1}')
+        "json": lambda s: json.loads(s),
+        "list": lambda s: json.loads(s),
+        "dict": lambda s: json.loads(s),
+    }
+    return mapping.get(type_name, str)
+
 
 def build_cli(config: Dict[str, Any]) -> argparse.ArgumentParser:
     """Construct an `argparse.ArgumentParser` based on *config*."""
@@ -29,14 +57,41 @@ def build_cli(config: Dict[str, Any]) -> argparse.ArgumentParser:
         logger.debug("Adding command: %s", command["name"])
         subparser = subparsers.add_parser(command["name"], description=command["description"])
         for arg in command["args"]:
-            arg_type = eval(arg["type"]) if arg["type"] != "json" else str
-            if "rules" in arg:
-                def custom_type(value: str, rules=arg["rules"]):
-                    return validate_arg(value, rules)
-                subparsers_help = arg["help"]
-                subparser.add_argument(f"--{arg['name']}", type=custom_type, help=subparsers_help, required=arg.get("required", False))
-            else:
-                subparser.add_argument(f"--{arg['name']}", type=arg_type, help=arg["help"], required=arg.get("required", False))
+            target_type = _type_converter(arg.get("type", "str"))
+
+            # Build a converter that validates (if rules present) and then coerces
+            def make_converter(rules: Dict[str, Any] | None, to_type: _Callable[[str], Any]):
+                def _convert(raw: str) -> Any:
+                    # Always validate against string input first
+                    if rules is not None:
+                        validate_arg(raw, rules)
+                    # Then coerce to target type
+                    try:
+                        return to_type(raw)
+                    except Exception as exc:  # pragma: no cover - argparse surfaces message
+                        raise argparse.ArgumentTypeError(str(exc)) from exc
+                return _convert
+
+            converter = make_converter(arg.get("rules"), target_type)
+
+            # Coerce choices to the same type argparse will compare against
+            coerced_choices = None
+            if "choices" in arg and arg["choices"] is not None:
+                coerced_choices = []
+                for c in arg["choices"]:
+                    try:
+                        coerced_choices.append(target_type(c) if isinstance(c, str) else c)
+                    except Exception:  # keep original if cannot coerce
+                        coerced_choices.append(c)
+
+            subparser.add_argument(
+                f"--{arg['name']}",
+                type=converter,
+                help=arg.get("help"),
+                required=arg.get("required", False),
+                choices=coerced_choices,
+                default=arg.get("default"),
+            )
     return parser
 
 
